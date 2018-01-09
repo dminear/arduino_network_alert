@@ -4,8 +4,8 @@
 #include <SparkFunESP8266Server.h>
 #include <Adafruit_NeoPixel.h>
 #include "WS2812_Definitions.h"
-#
-# changed the buffer length to 280 in SparkFunESP8266WiFi.cpp
+//
+// changed the buffer length to 280 in SparkFunESP8266WiFi.cpp
 
 #define PIN 4        // WS2812 on pin 4
 #define LED_COUNT 1  // only 1 of them
