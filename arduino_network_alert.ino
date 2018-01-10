@@ -33,11 +33,13 @@ const String htmlHeader = "HTTP/1.1 200 OK\r\n"
                           "<!DOCTYPE HTML>\r\n"
                           "<html>\r\n<body>Breaker!</body></html>\r\n";
 
-const String httpRequest1 = "POST /intercom/ip/";
-const String httpRequest2 = " HTTP/1.1\r\n" 
+const String httpCheckRequest1 = "POST /intercom/ip/";
+const String httpCloseRequest2 = " HTTP/1.1\r\n" 
                            "Host: api.aududu.com\r\n"                        
                            "Connection: close\r\n\r\n";
 
+const String httpAlertRequest1 = "POST /intercom/alert/";
+                       
 // "Content-Type: application/json\r\n"
  
 char serverBuffer[20];
@@ -196,10 +198,10 @@ void checkIn() {
     Serial.println(F("Failed to connect to server."));
     return;
   }
-  client.print(httpRequest1);
+  client.print(httpCheckRequest1);
   myIP.printTo( client );  
   // print and write can be used to send data to a connected client connection.
-  client.print(httpRequest2);
+  client.print(httpCloseRequest2);
 
   // available() will return the number of characters
   // currently in the receive buffer.
@@ -228,12 +230,10 @@ void initiateAlert() {
     return;
   }
 
- const String httpRequest = "POST /intercom/alert HTTP/1.1\r\n" 
-                           "Host: api.aududu.com\r\n" 
-                           "Connection: close\r\n\r\n";
-                       
   // print and write can be used to send data to a connected client connection.
-  client.print(httpRequest);
+  client.print(httpAlertRequest1);
+  myIP.printTo( client );  
+  client.print(httpCloseRequest2);
 
   // available() will return the number of characters
   // currently in the receive buffer.
