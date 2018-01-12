@@ -155,17 +155,17 @@ void loop() {
       Serial.println(F("Sending HTML page"));  
       client.print(htmlHeader);
 
-      if (strstr(serverBuffer, "alert") == NULL) {
+      if (strstr(serverBuffer, "alert") != NULL || count == 2) {
+        //sound alert
+        Serial.println(F("sound alert!"));
+        soundAlarmState = 1;
+      } else {      
         // not found
         Serial.print(F("no alert, buffer is:"));
         for(byte i=0;i < sizeof(serverBuffer);i++){
           Serial.print(serverBuffer[i]);
         }
         Serial.println();
-      } else {      
-        //sound alert
-        Serial.println(F("sound alert!"));
-        soundAlarmState = 1;
       }
       // give the web browser time to receive the data
       delay(1);
