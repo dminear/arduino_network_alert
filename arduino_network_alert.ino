@@ -42,7 +42,8 @@ const String httpAlertRequest1 = "POST /intercom/alert/";
                        
 // "Content-Type: application/json\r\n"
  
-char serverBuffer[20];
+char serverBuffer[21];
+char serverBuffer2[11];
 byte serverBufferIdx = 0;
 byte soundAlarmState = 0;
 
@@ -87,6 +88,7 @@ void loop() {
   ESP8266Server server = ESP8266Server(14252);
   ESP8266Client client;
   memset(serverBuffer, 0, sizeof(serverBuffer));
+  memset(serverBuffer2, 0, sizeof(serverBuffer2));
   
   checkIn();  // initial powerup checkin
   
@@ -131,7 +133,7 @@ void loop() {
           
           // deal with a circular buffer to check content
           serverBuffer[serverBufferIdx++] = c;
-          if (serverBufferIdx >= sizeof(serverBuffer)) {
+          if (serverBufferIdx >= sizeof(serverBuffer)-1) {  // keep last null there
             serverBufferIdx = 0;
           }
         }     // end client available -- all data received
@@ -160,12 +162,31 @@ void loop() {
         Serial.println(F("sound alert!"));
         soundAlarmState = 1;
       } else {      
-        // not found
-        Serial.print(F("no alert, buffer is:"));
-        for(byte i=0;i < sizeof(serverBuffer);i++){
-          Serial.print(serverBuffer[i]);
+        // try to rotate buffer around by at least 5 in case
+        // "alert" is across the buffer ends
+        for (int i = 15; i < 20; i++){
+          serverBuffer2[i-15] = serverBuffer[i];
         }
-        Serial.println();
+        for (int i = 0; i < 5; i++) {
+          serverBuffer2[i+5] = serverBuffer[i];
+        }
+        // now check serverBuffer2
+        if (strstr(serverBuffer2, "alert") != NULL) {
+          Serial.println(F("sound alert!"));
+          soundAlarmState = 1;      
+        } else {
+        
+         // not found
+          Serial.println(F("no alert, buffers are:"));
+          for(byte i=0;i < sizeof(serverBuffer)-1;i++){
+            Serial.print(serverBuffer[i]);
+          }
+          Serial.println();
+          for(byte i=0;i < sizeof(serverBuffer2)-1;i++){
+            Serial.print(serverBuffer2[i]);
+          }
+          Serial.println();
+        }
       }
       // give the web browser time to receive the data
       delay(1);
